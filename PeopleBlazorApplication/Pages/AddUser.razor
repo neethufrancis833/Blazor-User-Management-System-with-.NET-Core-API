@@ -1,0 +1,62 @@
+﻿@page "/adduser"
+
+@using PeopleBlazorApplication.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<div class="d-flex justify-content-center align-items-start" style="padding-top: 20px;">
+    <EditForm Model="user" OnValidSubmit="HandleValidSubmit" class="w-50">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <!-- Table with Heading -->
+        <table class="table table-borderless">
+            <thead>
+                <tr>
+                    <th colspan="2" class="text-center text-success"><h3>Add User</h3></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><label for="FirstName" class="form-label">First Name</label></td>
+                    <td><InputText id="FirstName" @bind-Value="user.FirstName" maxlength="30" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <td><label for="LastName" class="form-label">Last Name</label></td>
+                    <td><InputText id="LastName" @bind-Value="user.LastName" maxlength="30" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <td><label for="Email" class="form-label">Email</label></td>
+                    <td><InputText id="Email" @bind-Value="user.Email" maxlength="30" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <td><label for="Phone" class="form-label">Phone</label></td>
+                    <td><InputText id="Phone" @bind-Value="user.Phone" maxlength="10" class="form-control" /></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-success me-2 w-auto">Add</button>
+            <button type="button" class="btn btn-secondary w-auto" @onclick="ClearForm">Clear</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private string firstNameErrorMessage;
+    private User user = new User();
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await Http.PostAsJsonAsync("https://localhost:7086/api/users", user);
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/users");
+        }
+    }
+
+    private void ClearForm()
+    {
+        user = new User();
+    }
+}

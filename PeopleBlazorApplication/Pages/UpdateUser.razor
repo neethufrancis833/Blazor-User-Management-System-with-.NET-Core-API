@@ -1,0 +1,80 @@
+﻿@page "/updateuser/{userId:int}"
+@using PeopleBlazorApplication.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<div class="d-flex justify-content-center align-items-start" style="padding-top: 20px;">
+    <EditForm Model="user" OnValidSubmit="HandleValidSubmit" class="w-50">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <!-- Table with Heading -->
+        <table class="table table-borderless">
+            <thead>
+                <tr>
+                    <th colspan="2" class="text-center text-warning"><h3>Update User</h3></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><label for="FirstName" class="form-label">First Name</label></td>
+                    <td><InputText id="FirstName" @bind-Value="user.FirstName" maxlength="30" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <td><label for="LastName" class="form-label">Last Name</label></td>
+                    <td><InputText id="LastName" @bind-Value="user.LastName" maxlength="30" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <td><label for="Email" class="form-label">Email</label></td>
+                    <td><InputText id="Email" @bind-Value="user.Email" maxlength="30" class="form-control" /></td>
+                </tr>
+                <tr>
+                    <td><label for="Phone" class="form-label">Phone</label></td>
+                    <td><InputText id="Phone" @bind-Value="user.Phone" maxlength="10" class="form-control" /></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-success me-2 w-auto">Add</button>
+            <button type="button" class="btn btn-secondary ms-2 w-auto" @onclick="ResetForm">Reset</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public int UserId { get; set; }
+    private User user = new User();
+    private User originalUser = new User();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the user data and initialize the form
+        user = await Http.GetFromJsonAsync<User>($"https://localhost:7086/api/users/{UserId}");
+        originalUser = new User
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Phone = user.Phone
+            };
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await Http.PutAsJsonAsync($"https://localhost:7086/api/users/{user.Id}", user);
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/users");
+        }
+    }
+
+    private void ResetForm()
+    {
+        // Directly reset user properties to their original values
+        user.FirstName = originalUser.FirstName;
+        user.LastName = originalUser.LastName;
+        user.Email = originalUser.Email;
+        user.Phone = originalUser.Phone;
+    }
+}

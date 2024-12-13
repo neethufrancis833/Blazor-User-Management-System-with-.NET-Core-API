@@ -1,0 +1,94 @@
+﻿@page "/users"
+@using PeopleBlazorApplication.Models
+@using Microsoft.AspNetCore.Components;
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h3 class="text-center text-primary">User   List</h3>
+
+@if (users != null && users.Any())
+{
+<div style="max-height: 400px; overflow-y: auto;">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                    <th class="text-center">First Name</th>
+                    <th class="text-center">Last Name</th>
+                    <th class="text-center">Email</th>
+                    <th class="text-center">Phone</th>
+                    <th class="text-center" colspan="2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.FirstName</td>
+                    <td>@user.LastName</td>
+                    <td>@user.Email</td>
+                    <td>@user.Phone</td>
+                    <td>
+                        <button class="btn btn-warning" @onclick="() => UpdateUser(user.Id)">
+                             Update
+                            </button>
+                    </td>
+                        <td>
+                            <button class="btn btn-danger " @onclick="() => DeleteUser(user.Id)">Delete
+                            </button>
+                        </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+}
+else
+{
+    <p>No users found.</p>
+}
+
+@code {
+    private List<User> users;
+    private string errorMessage = "";
+    protected override async Task OnInitializedAsync()
+    {
+        try{
+            users = await Http.GetFromJsonAsync<List<User>>("https://localhost:7086/api/users");
+        }
+       catch (Exception ex)
+       {
+            errorMessage = $"An error occurred: {ex.Message}";
+
+       }
+    }
+
+    private void AddUser()
+    {
+        NavigationManager.NavigateTo("/adduser");
+    }
+
+    private void UpdateUser(int userId)
+    {
+        NavigationManager.NavigateTo($"/updateuser/{userId}");
+    }
+    private async Task DeleteUser(int userId)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"https://localhost:7086/api/users/{userId}");
+            if (response.IsSuccessStatusCode)
+            {
+                users = users.Where(u => u.Id != userId).ToList();
+            }
+            else
+            {
+                errorMessage = $"Failed to delete user with ID {userId}.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred while deleting the user: {ex.Message}";
+        }
+    }
+
+}
