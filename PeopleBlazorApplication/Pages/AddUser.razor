@@ -8,7 +8,7 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <!-- Table with Heading -->
+        <!-- Table start -->
         <table class="table table-borderless">
             <thead>
                 <tr>
@@ -34,6 +34,7 @@
                 </tr>
             </tbody>
         </table>
+        <!-- Table end -->
 
         <div class="d-flex justify-content-center">
             <button type="submit" class="btn btn-success me-2 w-auto">Add</button>
@@ -43,9 +44,8 @@
 </div>
 
 @code {
-    private string firstNameErrorMessage;
+   
     private User user = new User();
-
     private async Task HandleValidSubmit()
     {
         var response = await Http.PostAsJsonAsync("https://localhost:7086/api/users", user);
